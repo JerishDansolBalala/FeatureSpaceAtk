@@ -4,28 +4,24 @@ Here attaches 250 samples of images used for human preference study.
 
 ## Compared with Color Attack
 
-We first compare Feature Space Attack with Semantic Color Attack in "./human/FS vs Semantic"
-67% users favor Feature Space Attack and 33% users favor Semantic Attack.
-We select several images for illustration. The left one is from feature space attack, the right one is from color attack.
+We first compare Feature Space Attack with Semantic Color Attack in "./human/FSvsSemantic". 67% users favor Feature Space Attack and 33% users favor Semantic Attack. We select several images for illustration. The left one is from feature space attack, the right one is from color attack.
 
-![](human/FS vs Semantic/4_FS_SMT.jpg)
-![](human/FS vs Semantic/5_FS_SMT.jpg)
-![](human/FS vs Semantic/0_FS_SMT.jpg)
-![](human/FS vs Semantic/2_FS_SMT.jpg)
-![](human/FS vs Semantic/3_FS_SMT.jpg)
+![](human/FSvsSemantic/4_FS_SMT.jpg)
+![](human/FSvsSemantic/5_FS_SMT.jpg)
+![](human/FSvsSemantic/0_FS_SMT.jpg)
+![](human/FSvsSemantic/2_FS_SMT.jpg)
+![](human/FSvsSemantic/3_FS_SMT.jpg)
 
+## Compared with PGD
 
-We then compare Feature Space Attack with PGD in "./human/FS vs PGD"
-
-40% users favor Feature Space samples and 60% favors PGD.
-
+We then compare Feature Space Attack with PGD in "./human/FSvsPGD". 40% users favor Feature Space samples and 60% favors PGD.
 We select several images of animals as a demonstration. For more images, please refer to the directory posted. The left one is from feature space attack, the right one is from PGD.
 
-![](human/FS vs PGD/453_FS_PGD.jpg)
-![](human/FS vs PGD/0_FS_PGD.jpg)
-![](human/FS vs PGD/133_FS_PGD.jpg)
-![](human/FS vs PGD/487_FS_PGD.jpg)
-![](human/FS vs PGD/336_FS_PGD.jpg)
+![](human/FSvsPGD/453_FS_PGD.jpg)
+![](human/FSvsPGD/0_FS_PGD.jpg)
+![](human/FSvsPGD/133_FS_PGD.jpg)
+![](human/FSvsPGD/487_FS_PGD.jpg)
+![](human/FSvsPGD/336_FS_PGD.jpg)
 
 # Code 
 
