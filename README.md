@@ -1,31 +1,43 @@
-# Feature Space Images
-Here attaches 200 samples of images used for human study. 40% users favor Feature Space samples and 60% favors PGD.
+# Human Preference Study
 
-The left one is from feature space attack, the right one is from PGD.
+Here attaches 250 samples of images used for human preference study. 
 
-We select several images of dogs as a demonstration. For more images, please refer to the directory posted.
+## Compared with Color Attack
 
-![](posted/453_FS_PGD.jpg)
+We first compare Feature Space Attack with Semantic Color Attack in "./human/FS vs Semantic"
+67% users favor Feature Space Attack and 33% users favor Semantic Attack.
+We select several images for illustration. The left one is from feature space attack, the right one is from color attack.
 
-![](posted/0_FS_PGD.jpg)
+![](human/FS vs Semantic/4_FS_SMT.jpg)
+![](human/FS vs Semantic/5_FS_SMT.jpg)
+![](human/FS vs Semantic/0_FS_SMT.jpg)
+![](human/FS vs Semantic/2_FS_SMT.jpg)
+![](human/FS vs Semantic/3_FS_SMT.jpg)
 
-![](posted/133_FS_PGD.jpg)
 
-![](posted/487_FS_PGD.jpg)
+We then compare Feature Space Attack with PGD in "./human/FS vs PGD"
 
-![](posted/336_FS_PGD.jpg)
+40% users favor Feature Space samples and 60% favors PGD.
+
+We select several images of animals as a demonstration. For more images, please refer to the directory posted. The left one is from feature space attack, the right one is from PGD.
+
+![](human/FS vs PGD/453_FS_PGD.jpg)
+![](human/FS vs PGD/0_FS_PGD.jpg)
+![](human/FS vs PGD/133_FS_PGD.jpg)
+![](human/FS vs PGD/487_FS_PGD.jpg)
+![](human/FS vs PGD/336_FS_PGD.jpg)
 
 # Code 
 
-We also attaches the code here. It's a development version. We introduce how to use the main function of the code. While generally people need to configure it before usage.
+We also attaches the code here. It's a development version. The official version shall be public after paper getting published. We introduce how to use the main function of the code. While generally people need to configure it before usage.
 
 The code is based on Python 3, Tensorflow 1.14.
 
 We modify the code based on a arbitrary style transfer implementation. https://github.com/elleryqueenhomels/arbitrary_style_transfer. You will need to download corresponding VGG-19 parameters and set up ImageNet dataset in advance.
 
-Each file has a header in code, which specify the dataset, the model for attack and the decoder you choose. Before running each file, you need to change that header to meet your requirement.
+Each file has a header in code, which specify the dataset, the model for attack and the decoder you choose. Before running each file, you need to change that header to your specific decoder and dataset. Ahead of running attack, one must first train the corresponding decoder first.
 
-To train an encoder, Please python train.py.
+To train an decoder, Please use "python train.py".
 
 To run Feature Argumentation Attack, please use "python attack.py".
 

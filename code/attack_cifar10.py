@@ -15,7 +15,7 @@ decoder_name = "imagenet_shallow"
 """
 task_name = "attack"
 data_set = "cifar10"  # "imagenet"
-model_name = "cifar10_trades"
+model_name = "cifar10_style_adv"
 decoder_name = "cifar10_balance"
 
 exec(open('base.py').read())
@@ -225,7 +225,7 @@ with tf.Graph().as_default(), tf.Session(config=tf_config) as sess:
     enc_gen, enc_gen_layers = stn.encoder.encode(generated_img)
 
     if data_set == "cifar10":
-        if model_name in ["cifar10_nat","cifar10_adv"]:
+        if model_name in ["cifar10_nat", "cifar10_adv", "cifar10_style_adv"]:
             classifier = Model("eval", raw_cifar.train_images)
             classifier._build_model(adv_img, label, reuse=False, conf=0.1)
             adv_loss = - classifier.target_loss
@@ -296,7 +296,7 @@ with tf.Graph().as_default(), tf.Session(config=tf_config) as sess:
 
     loss=loss
     if data_set == "cifar10":
-        if model_name in ["cifar10_nat","cifar10_adv"]:
+        if model_name in ["cifar10_nat", "cifar10_adv", "cifar10_style_adv"]:
             classifier_vars = get_scope_var("model")
     decoder_vars = get_scope_var("decoder")
     # Training step
@@ -314,7 +314,7 @@ with tf.Graph().as_default(), tf.Session(config=tf_config) as sess:
 
     sess.run(tf.global_variables_initializer())
     if data_set == "cifar10":
-        if model_name=="cifar10_adv":
+        if model_name == "cifar10_adv" or model_name == "cifar10_style_adv":
             classifier_saver = tf.train.Saver(classifier_vars, max_to_keep=1)
             classifier_saver.restore(sess, settings.config["hardened_model"])
         elif model_name=="cifar10_nat":

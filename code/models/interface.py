@@ -69,6 +69,13 @@ def build_imagenet_model(image, label, reuse=False, conf=1, shrink_class = 1000)
     true_logit = tf.reduce_sum(logits * label_one_hot, axis=-1)
     cont.target_loss = - tf.nn.relu(true_logit - wrong_logit + conf)
 
+    wrong_logit5, _idx = tf.nn.top_k(
+        logits * (1-label_one_hot) - label_one_hot * 1e7, k=5, sorted=False)
+    true_logit5 = tf.reduce_sum(
+        logits * label_one_hot, axis=-1, keep_dims=True)
+    cont.target_loss5 = - \
+        tf.reduce_sum(tf.nn.relu(true_logit5 - wrong_logit5 + conf), axis=1)
+
     cont.xent_filter = tf.reduce_mean((1.0-wrong_1) *
                                            tf.nn.sparse_softmax_cross_entropy_with_logits(labels=label, logits=logits), axis=-1)
 

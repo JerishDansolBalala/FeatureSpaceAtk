@@ -5,7 +5,7 @@ import tensorflow as tf
 
 from encoder import Encoder
 from decoder import Decoder
-from adaptive_instance_norm import AdaIN, AdaIN_adv, normalize
+from adaptive_instance_norm import AdaIN, AdaIN_adv, normalize, AdaIN_rand
 import settings
 
 class StyleTransferNet(object):
@@ -43,8 +43,15 @@ class StyleTransferNet(object):
 
         self.norm_features = enc_c
         # pass the encoded images to AdaIN
-        with tf.variable_scope("transform"):
-            target_features = AdaIN(enc_c, enc_s)
+        if "TRAIN_SMOOTH_ENABLE" in settings.config:
+            Batch_SZ = settings.config["BATCH_SIZE"]
+            self.mix_rate_content = tf.random.uniform([Batch_SZ,1,1,1], minval=0, maxval=1)
+            with tf.variable_scope("transform"):
+                target_features = AdaIN_rand(
+                    enc_c, enc_s, self.mix_rate_content)
+        else:
+            with tf.variable_scope("transform"):
+                target_features = AdaIN(enc_c, enc_s)
         self.target_features = target_features
         #self.target_features = target_features
 

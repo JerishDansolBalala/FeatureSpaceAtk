@@ -17,6 +17,7 @@ decoder_name = "cifar10_balance"
 """
 
 
+
 class datapair():
     def __init__(self, class_num, batch_size, stack_num=10):
         self.class_num = class_num
@@ -46,9 +47,10 @@ class datapair():
             return True
 
 
-data_set = "imagenet"
-model_name = "imagenet_denoise"
-decoder_name = "imagenet"
+task_name = "evaluation"
+data_set = "imagenet"  # "imagenet"
+model_name = "imagenet_normal"
+decoder_name = "imagenet_quality"
 
 exec(open('base.py').read())
 
@@ -266,14 +268,14 @@ with tf.Graph().as_default(), tf.Session(config=tf_config) as sess:
         norm_acc = classifier.accuracy
     elif data_set == "imagenet":
         classifier = build_imagenet_model(adv_img_bgr, label, conf=1)
-        adv_loss = - classifier.target_loss5
+        adv_loss = - classifier.target_loss
         adv_acc = classifier.accuracy
         adv_acc_y = classifier.acc_y
         adv_acc_y_5 = classifier.acc_y_5
         content_bgr = tf.reverse(
             content, axis=[-1])  # switch RGB to BGR
         classifier = build_imagenet_model(content_bgr, label, reuse=True)
-        normal_loss = - classifier.target_loss5
+        normal_loss = - classifier.target_loss
         norm_acc = classifier.accuracy
         acc_y = classifier.acc_y
         acc_y_5 = classifier.acc_y_5

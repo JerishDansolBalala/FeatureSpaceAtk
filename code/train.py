@@ -8,10 +8,10 @@ import os
 import logging
 
 import settings
-data_set = "cifar10"  # "imagenet"
-model_name = "cifar10_adv"
-decoder_name = "cifar10_balance"
-task_name = "attack"
+data_set = "imagenet"  # "imagenet"
+model_name = "imagenet_normal"
+decoder_name = "imagenet_shallow_smooth"
+task_name = "train"
 
 exec(open('base.py').read())
 
@@ -19,13 +19,13 @@ exec(open('base.py').read())
 #settings.init_settings("cifar10")
 logger=settings.logger
 
-from imagenetmod.interface import build_imagenet_model, imagenet, restore_parameter
+from imagenetmod.interface import  imagenet
 from style_transfer_net import StyleTransferNet
 from utils import get_train_images
 from cifar10_class import Model
 import cifar10_input
 from PIL import Image
-from adaptive_instance_norm import normalize
+from adaptive_instance_norm import normalize,moment_of_mixture
 
 
 STYLE_LAYERS = settings.config["STYLE_LAYERS"]
@@ -204,21 +204,39 @@ with tf.Graph().as_default(), tf.Session(config=tf_config) as sess:
         generated_img_adv)  # preprocess image
     enc_gen_adv, enc_gen_layers_adv = stn.encoder.encode(generated_img_adv)
     
+    compare_img =generated_img
     generated_img = tf.reverse(
         generated_img, axis=[-1])  # switch RGB to BGR
     img_bgr = generated_img
     generated_img = stn.encoder.preprocess(
         generated_img)  # preprocess image
+    
     enc_gen, enc_gen_layers = stn.encoder.encode(generated_img)
-
     l2_embed = normalize(enc_gen)[0] - normalize(stn.norm_features)[0]
     l2_embed = tf.reduce_mean(tf.sqrt(tf.reduce_sum((l2_embed * l2_embed),axis=[1,2,3])))
 
     # compute the content loss
     content_loss = tf.reduce_sum(tf.reduce_mean(
-        tf.square(enc_gen_adv - target_features), axis=[1, 2])) + settings.config["balance_weight"] * \
-        tf.reduce_sum(tf.reduce_mean( \
-        tf.square(enc_gen - stn.norm_features), axis=[1, 2]))
+        tf.square(enc_gen_adv - target_features), axis=[1, 2])) 
+
+    if settings.config["balance_weight"]>0:
+        
+        content_loss += settings.config["balance_weight"] * \
+            -tf.reduce_sum(tf.image.ssim_multiscale(
+            img,
+            content,
+            256.0,
+            filter_size=11,
+            filter_sigma=1.5,
+            k1=0.01,
+            k2=0.03
+        ))
+
+        #    tf.reduce_sum(tf.reduce_mean( \
+        #        tf.abs(compare_img-content), axis=[1, 2]))
+        #tf.reduce_sum(tf.reduce_mean( \
+        #tf.square(enc_gen - stn.norm_features), axis=[1, 2]))
+        
     #content_loss += tf.reduce_sum(tf.reduce_mean(
     #    tf.square(enc_gen - stn.norm_features), axis=[1, 2]))
 
@@ -247,6 +265,12 @@ with tf.Graph().as_default(), tf.Session(config=tf_config) as sess:
 
         meanS, varS = tf.nn.moments(enc_style_feat, [1, 2])
         meanG, varG = tf.nn.moments(enc_gen_feat,   [1, 2])
+        if "TRAIN_SMOOTH_ENABLE" in settings.config:
+            enc_content_feat = stn.encoded_content_layers[layer]
+            meanC, varC = tf.nn.moments(enc_content_feat, [1, 2])
+            meanMix, varMix = moment_of_mixture(
+                meanC, meanS, varC, varS, stn.mix_rate_content)
+            meanS, varS = meanMix, varMix
 
         sigmaS = tf.sqrt(varS + EPSILON)
         sigmaG = tf.sqrt(varG + EPSILON)
@@ -308,7 +332,8 @@ with tf.Graph().as_default(), tf.Session(config=tf_config) as sess:
 
         
         if step % 1000 == 0:
-            saver.save(sess, model_save_path, global_step=step, write_meta_graph=False)
+            # global_step=step,
+            saver.save(sess, model_save_path,  write_meta_graph=False)
 
         if batch % 1000 ==0:
             for i in range(8):

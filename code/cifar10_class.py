@@ -113,7 +113,7 @@ class Model(object):
           tf.cast(self.correct_prediction, tf.int64))
       self.accuracy = tf.reduce_mean(
           tf.cast(self.correct_prediction, tf.float32))
-
+      self.acc_y = tf.cast(self.correct_prediction, tf.float32)
 
       with tf.variable_scope('costs'):
         self.y_xent = tf.nn.sparse_softmax_cross_entropy_with_logits(

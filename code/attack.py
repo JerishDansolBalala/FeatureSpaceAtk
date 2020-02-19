@@ -9,10 +9,17 @@ import tensorflow as tf
 import os
 import settings
 
+"""
 task_name = "attack"
 data_set = "cifar10"  # "imagenet"
-model_name = "cifar10_adv"
+model_name = "cifar10_style_adv"
 decoder_name = "cifar10_balance"
+"""
+
+task_name = "attack"
+data_set = "imagenet"  # "imagenet"
+model_name = "imagenet_denoise"
+decoder_name = "imagenet"
 
 """
 data_set = "cifar10"  # "imagenet"
@@ -230,9 +237,17 @@ with tf.Graph().as_default(), tf.Session(config=tf_config) as sess:
         classifier._build_model(adv_img, label, reuse=False)
         adv_loss = - classifier.target_loss
         adv_acc = classifier.accuracy
-        classifier._build_model(img, label, reuse=True)
+        adv_acc_y = classifier.acc_y
+        adv_acc_y_5 = classifier.acc_y
+        classifier._build_model(content, label, reuse=True)
+        norm_acc = classifier.accuracy
+        acc_y = classifier.acc_y
+        acc_y_5 = classifier.acc_y
         normal_loss = - classifier.target_loss
         norm_acc = classifier.accuracy
+        classifier._build_model(img, label, reuse=True)
+        decode_acc_y = classifier.acc_y
+        decode_acc_y_5 = classifier.acc_y
     elif data_set == "imagenet":
         classifier = build_imagenet_model(adv_img_bgr, label, conf=1)
         adv_loss = - classifier.target_loss5

@@ -8,11 +8,14 @@ np.set_printoptions(threshold=sys.maxsize)
 import tensorflow as tf
 import os
 import settings
-data_set = "imagenet"#"imagenet"
-data_set_name = "imagenet_shallow"
-settings.init_settings("imagenet_shallow")
+task_name = "attack"
+data_set = "imagenet"  # "imagenet"
+model_name = "imagenet_normal"
+decoder_name = "imagenet_shallowest_smooth"
 
-from imagenetmod.interface import build_imagenet_model, imagenet, restore_parameter
+exec(open('base.py').read())
+
+from imagenetmod.interface import imagenet
 from style_transfer_net import StyleTransferNet, StyleTransferNet_adv
 from utils import get_train_images
 from cifar10_class import Model
@@ -70,9 +73,9 @@ else:
     LR_DECAY_RATE = 1e-3  # 5e-5
     DECAY_STEPS = 1.0
     adv_weight = 128 * 5
-    ITER=100
+    ITER=1000
     CLIP_NORM_VALUE = 1.0
-    INCLUDE_SELF = False
+    INCLUDE_SELF = True
 style_weight = 1
 
 if data_set == "cifar10":
@@ -83,7 +86,7 @@ if data_set == "cifar10":
             batch_size=BATCH_SIZE, multiple_passes=True)
         return x_batch, y_batch
 elif data_set == "imagenet":
-    inet = imagenet(BATCH_SIZE, "val")
+    inet = imagenet(BATCH_SIZE, "train")
 
     def get_data(sess):
         x_batch, y_batch = inet.get_next_batch(sess)
@@ -96,7 +99,7 @@ ENCODER_WEIGHTS_PATH = 'vgg19_normalised.npz'
 if data_set == "cifar10":
     Decoder_Model = "./trans_pretrained/cifar10transform1.ckpt-574000"#'transform2.ckpt-147000'#./trans_pretrained/transform.ckpt'
 elif data_set == "imagenet":
-    Decoder_Model = "./imagenetshallowtransform1.ckpt.mode2"#"./trans_pretrained/imagenetshallowtransform1.ckpt-104000"
+    Decoder_Model = "./imagenetshallowesttransform_smooth1.ckpt.mode2"#"./trans_pretrained/imagenetshallowtransform1.ckpt-104000"
 
 def save_rgb_img( img, path):
     img = img.astype(np.uint8)
@@ -168,9 +171,9 @@ if data_set == "cifar10":
     FEATURE_SPACE = (None, 1, 1, 128)
 else:
     INTERPOLATE_NUM = settings.config["INTERPOLATE_NUM"]
-    INTERNAL_SHAPE = (BATCH_SIZE, 56, 56, 256)  # (BATCH_SIZE, 28, 28, 512)
-    FEATURE_SPACE = (BATCH_SIZE, 1, 1, 256)
-    INTERPOLATE_SHAPE = (BATCH_SIZE, INTERPOLATE_NUM, 1, 1, 256)
+    INTERNAL_SHAPE = (BATCH_SIZE, 112, 112, 128)#(BATCH_SIZE, 56, 56, 256)  # (BATCH_SIZE, 28, 28, 512)
+    FEATURE_SPACE = (BATCH_SIZE, 1, 1, 128)
+    INTERPOLATE_SHAPE = (BATCH_SIZE, INTERPOLATE_NUM, 1, 1, 128)
 
 
 def gradient(opt, vars, loss):
@@ -250,8 +253,9 @@ with tf.Graph().as_default(), tf.Session(config=tf_config) as sess:
         norm_acc = classifier.accuracy
     elif data_set == "imagenet":
         classifier = build_imagenet_model(adv_img_bgr, label, conf=1)
-        adv_loss = - classifier.target_loss
-        adv_acc = classifier.accuracy
+        adv_loss = - classifier.target_loss5
+        adv_acc = tf.reduce_mean(classifier.acc_y_5)
+
         classifier = build_imagenet_model(img_bgr, label, reuse=True)
         normal_loss = - classifier.xent
         norm_acc = classifier.accuracy
@@ -310,8 +314,8 @@ with tf.Graph().as_default(), tf.Session(config=tf_config) as sess:
         print('\nElapsed time for preprocessing before actually train the model: %s' % elapsed_time)
         print('Now begin to train the model...\n')
 
-    mean_file = "polygon_mean_%s.npy" % data_set_name
-    sigma_file = "polygon_sigma_%s.npy" % data_set_name
+    mean_file = "polygon_mean_%s.npy" % data_set
+    sigma_file = "polygon_sigma_%s.npy" % data_set
     if os.path.exists(mean_file) and os.path.exists(sigma_file):
         _mean_all = np.load(mean_file)
         _sigma_all = np.load(sigma_file)
@@ -372,7 +376,7 @@ with tf.Graph().as_default(), tf.Session(config=tf_config) as sess:
                 batch_size=BATCH_SIZE, multiple_passes=True)
             return x_batch, y_batch
     elif data_set == "imagenet":
-        inet = imagenet(BATCH_SIZE, "train")
+        inet = imagenet(BATCH_SIZE, "val")
 
         def get_data(sess):
             x_batch, y_batch = inet.get_next_batch(sess)

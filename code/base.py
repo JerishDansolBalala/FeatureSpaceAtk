@@ -11,17 +11,19 @@ base_dir_model = os.path.join("store", data_set, decoder_name, model_name)
 task_dir = os.path.join("store", data_set, decoder_name, model_name, task_name)
 os.makedirs(task_dir, exist_ok=True)
 if data_set == "cifar10":
-    assert model_name in ["cifar10_nat", "cifar10_adv", "cifar10_trades"]
+    assert model_name in ["cifar10_nat", "cifar10_adv", "cifar10_trades","cifar10_style_adv"]
     assert decoder_name in ["cifar10","cifar10_balance"]
     settings.init_settings(decoder_name, task_dir=task_dir)
     if decoder_name == "cifar10":
         Decoder_Model = "./cifar10transform1.ckpt"
     else:
         Decoder_Model = "./cifar10transform_balance1.ckpt"
+    if model_name == "cifar10_style_adv":
+        settings.config["hardened_model"] = "cifar10_style_harden.ckpt"
 elif data_set == "imagenet":
     assert model_name in ["imagenet_denoise", "imagenet_normal"]
     assert decoder_name in ["imagenet",
-                            "imagenet_shallow", "imagenet_shallowest"]
+                            "imagenet_shallow", "imagenet_shallowest", "imagenet_quality", "imagenet_smooth", "imagenet_shallow_smooth", "imagenet_shallowest_smooth"]
     settings.init_settings(decoder_name, task_dir = task_dir)
     import gaussiansmooth.interfacegaussian as gaussdetect
     from imagenetmod.interface import imagenet
@@ -37,4 +39,11 @@ elif data_set == "imagenet":
         Decoder_Model = "./imagenetshallowtransform1.ckpt.mode2"
     elif decoder_name == "imagenet":
         Decoder_Model = "./imagenettransform1.ckpt.mode2"
-
+    elif decoder_name == "imagenet_smooth":
+        Decoder_Model = "./imagenettransform_smooth1.ckpt.mode2"
+    elif decoder_name == "imagenet_shallow_smooth":
+        Decoder_Model = "./imagenetshallowtransform_smooth1.ckpt.mode2"
+    elif decoder_name == "imagenet_quality":
+        Decoder_Model = "./imagenettransform_new1.ckpt.mode2"
+    elif decoder_name == "imagenet_shallowest_smooth":
+        Decoder_Model = "./imagenetshallowesttransform_smooth1.ckpt.mode2"
