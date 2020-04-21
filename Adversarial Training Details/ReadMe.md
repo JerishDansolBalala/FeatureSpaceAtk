@@ -8,6 +8,8 @@ We choose Feature-Space Argumentation Attack as adversary and keeps the same par
 
 As a common practice, we increase the attack optimization steps from 50 to 2000 during evaluation.
 
+For more details about implementation, the code is available in "code/attack_adv_trained.py" .
+
 ## Learning Curve using Our Attack
 
 We record two types of accuracy, the accuracy for benign samples and the one for adversarial samples. For each type of accuracy, we record it both on the train set and the test set during training. 
